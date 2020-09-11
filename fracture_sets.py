@@ -445,7 +445,7 @@ class StochasticFractureGenerator(object):
 
         # It is assumed that the intensities are computed relative to boxes of the
         # same size that are assigned in here
-        area_of_box = 1
+        area_of_box = self.domain_measure(domain) / (nx * ny)
 
         pts = np.empty(num_boxes, dtype=np.object)
 
@@ -453,7 +453,7 @@ class StochasticFractureGenerator(object):
         counter = 0
         for i in range(nx):
             for j in range(ny):
-                num_p_loc = stats.poisson(max_intensity * area_of_box).rvs(1)[0]
+                num_p_loc = stats.poisson(2 * max_intensity * area_of_box).rvs(1)[0]
                 p_loc = np.random.rand(2, num_p_loc)
                 p_loc[0] = x0 + i * dx + p_loc[0] * dx
                 p_loc[1] = y0 + j * dy + p_loc[1] * dy
@@ -512,7 +512,7 @@ class StochasticFractureGenerator(object):
         allowed_dist = data.get("minimum_fracture_spacing", 0)
         return dist.min() < allowed_dist
 
-    def _generate_by_intensity(self, domain):
+    def _generate_by_intensity(self, domain=None):
         """ Generate a realization of a fracture network from the statistical distributions
         represented in this object.
 
@@ -560,7 +560,7 @@ class StochasticFractureGenerator(object):
             num_fracs = p_center.shape[1]
 
         # Then assign length and orientation
-        angles = self._generate_from_distribution(num_fracs, self.dist_angle)
+        angles = self._generate_from_distribution(num_fracs, self.dist_orientation)
         lengths = self._generate_from_distribution(num_fracs, self.dist_length)
 
         p, e = self._fracture_from_center_angle_length(p_center, angles, lengths)
