@@ -434,7 +434,7 @@ class StochasticFractureGenerator(object):
             return ValueError("Only Poisson point processes have been implemented")
         # Intensity scaled to this domain
         if intensity is None:
-            intensity = self.intensity * self.domain_measure(domain)
+            intensity = self.intensity #* self.domain_measure(domain)
 
         nx, ny = intensity.shape
         num_boxes = intensity.size
@@ -453,7 +453,7 @@ class StochasticFractureGenerator(object):
         counter = 0
         for i in range(nx):
             for j in range(ny):
-                num_p_loc = stats.poisson(2 * max_intensity * area_of_box).rvs(1)[0]
+                num_p_loc = stats.poisson(max_intensity * area_of_box).rvs(1)[0]
                 p_loc = np.random.rand(2, num_p_loc)
                 p_loc[0] = x0 + i * dx + p_loc[0] * dx
                 p_loc[1] = y0 + j * dy + p_loc[1] * dy
@@ -470,7 +470,6 @@ class StochasticFractureGenerator(object):
                 delete = np.where(intensity[i, j] / max_intensity < threshold)[0]
                 pts[counter] = np.delete(p_loc, delete, axis=1)
                 counter += 1
-
         return np.array(
             [pts[i][:, j] for i in range(pts.size) for j in range(pts[i].shape[1])]
         ).T
